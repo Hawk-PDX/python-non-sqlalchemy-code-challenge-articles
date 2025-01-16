@@ -67,9 +67,7 @@ class Author:
         return article
 
     def topic_areas(self):
-        if not self.articles():
-            return None
-        return list(set([article.magazine.category for article in self.articles()]))
+        return list(set(article.magazine.category for article in self.articles())) or None
 
 class Magazine:
     all = []
@@ -81,34 +79,30 @@ class Magazine:
         self.name = name
         self.category = category
     
+    def _validate_string(self, value, field_name, min_length=None, max_length=None):
+        if not isinstance(value, str):
+            raise Exception(f"{field_name} must be a string")
+        if min_length is not None and len(value) < min_length:
+            raise Exception(f"{field_name} must be at least {min_length} characters")
+        if max_length is not None and len(value) > max_length:
+            raise Exception(f"{field_name} must be no more than {max_length} characters")
+    
     @property
     def category(self):
         return self._category
     
     @category.setter
     def category(self, value):
-        if not isinstance(value, str):
-            raise Exception("Category must be a string")
-        if len(value) == 0:
-            raise Exception("Category cannot be empty")
+        self._validate_string(value, "Category", min_length=1)
         self._category = value
         
-    # def _validate_name(self, value):
-    #     if not isinstance(value, str):
-    #         raise Exception("Name must be a string")
-    #     if len(value) < 2 or len(value) > 16:
-    #         raise Exception("Name must be between 2 and 16 characters")
-    
     @property
     def name(self):
         return self._name
     
     @name.setter
     def name(self, value):
-        if not isinstance(value, str):
-            raise Exception("Name must be a string")
-        if len(value) < 2 or len(value) > 16:
-            raise Exception("Name must be between 2 and 16 characters, inclusive")
+        self._validate_string(value, "Name", min_length=2, max_length=16)
         self._name = value
             
     def __repr__(self):
